@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<title>Website Monitor</title>
+
+<link rel="stylesheet"
+href="/static/style.css">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Website Status Dashboard</h1>
+
+<div class="controls">
+
+<input
+id="siteInput"
+placeholder="https://example.com">
+
+<button onclick="addSite()">
+Add
+</button>
+
+<input
+id="interval"
+type="number"
+min="1"
+value="10">
+
+<button onclick="changeInterval()">
+Update Interval
+</button>
+
+<button onclick="loadData()">
+Refresh
+</button>
+
+</div>
+
+<div id="dashboard"></div>
+
+</div>
+
+<script src="/static/script.js"></script>
+
+</body>
+
+</html>
