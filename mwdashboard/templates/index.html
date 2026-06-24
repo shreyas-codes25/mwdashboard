@@ -4,10 +4,9 @@
 
 <head>
 
-<title>Website Monitor</title>
+    <title>Website Monitor</title>
 
-<link rel="stylesheet"
-href="/static/style.css">
+    <link rel="stylesheet" href="/static/style.css">
 
 </head>
 
@@ -15,37 +14,81 @@ href="/static/style.css">
 
 <div class="container">
 
-<h1>Website Status Dashboard</h1>
+    <h1>Website Status Dashboard</h1>
 
-<div class="controls">
+    <div class="controls">
 
-<input
-id="siteInput"
-placeholder="https://example.com">
+        <button onclick="openModal()">
 
-<button onclick="addSite()">
-Add
-</button>
+            ➕ Add Website
 
-<input
-id="interval"
-type="number"
-min="1"
-value="10">
+        </button>
 
-<button onclick="changeInterval()">
-Update Interval
-</button>
+        <input
+                id="interval"
+                type="number"
+                min="1"
+                value="10">
 
-<button onclick="loadData()">
-Refresh
-</button>
+        <button onclick="changeInterval()">
+
+            Update Interval
+
+        </button>
+
+        <button onclick="loadData()">
+
+            Refresh
+
+        </button>
+
+    </div>
+
+    <div id="dashboard"></div>
 
 </div>
 
-<div id="dashboard"></div>
+
+<!-- Popup Modal -->
+
+<div id="websiteModal" class="modal">
+
+    <div class="modal-content">
+
+        <h2>Add Website</h2>
+
+        <input
+                id="websiteName"
+                type="text"
+                placeholder="Website Name">
+
+        <input
+                id="websiteUrl"
+                type="text"
+                placeholder="https://example.com">
+
+        <p id="urlError"></p>
+
+        <div class="modal-buttons">
+
+            <button onclick="closeModal()">
+
+                Cancel
+
+            </button>
+
+            <button onclick="submitWebsite()">
+
+                Add
+
+            </button>
+
+        </div>
+
+    </div>
 
 </div>
+
 
 <script src="/static/script.js"></script>
 
