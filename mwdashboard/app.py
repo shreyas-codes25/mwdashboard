@@ -138,7 +138,15 @@ def config():
 @app.route("/add", methods=["POST"])
 def add_site():
 
-    url = request.json["url"]
+    global results
+
+    url = request.json["url"].strip()
+
+    if not url:
+        return jsonify({"success": False})
+
+    if not url.startswith(("http://", "https://")):
+        url = "https://" + url
 
     data = load_websites()
 
@@ -148,8 +156,10 @@ def add_site():
 
         save_websites(data)
 
-    return jsonify({"success": True})
+        # immediately add it to dashboard
+        results[url] = ping_site(url)
 
+    return jsonify({"success": True})
 
 @app.route("/remove", methods=["POST"])
 def remove_site():
