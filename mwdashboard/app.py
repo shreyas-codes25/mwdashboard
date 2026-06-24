@@ -17,28 +17,71 @@ results = {}
 def load_websites():
 
     try:
+
         with open(CONFIG_FILE, "r") as f:
+
             return json.load(f)
 
     except:
 
         data = {
+
             "interval": DEFAULT_INTERVAL,
 
             "websites": [
 
-                "https://google.com",
-                "https://youtube.com",
-                "https://github.com",
-                "https://stackoverflow.com",
-                "https://reddit.com",
-                "https://amazon.com",
-                "https://microsoft.com",
-                "https://openai.com",
-                "https://apple.com",
-                "https://flutter.dev"
+                {
+                    "name": "Google",
+                    "url": "https://google.com"
+                },
+
+                {
+                    "name": "YouTube",
+                    "url": "https://youtube.com"
+                },
+
+                {
+                    "name": "GitHub",
+                    "url": "https://github.com"
+                },
+
+                {
+                    "name": "Stack Overflow",
+                    "url": "https://stackoverflow.com"
+                },
+
+                {
+                    "name": "Reddit",
+                    "url": "https://reddit.com"
+                },
+
+                {
+                    "name": "Amazon",
+                    "url": "https://amazon.com"
+                },
+
+                {
+                    "name": "Microsoft",
+                    "url": "https://microsoft.com"
+                },
+
+                {
+                    "name": "OpenAI",
+                    "url": "https://openai.com"
+                },
+
+                {
+                    "name": "Apple",
+                    "url": "https://apple.com"
+                },
+
+                {
+                    "name": "Flutter",
+                    "url": "https://flutter.dev"
+                }
 
             ]
+
         }
 
         save_websites(data)
@@ -62,14 +105,22 @@ def ping_site(url):
         response = requests.get(
 
             url,
+
             timeout=10,
+
             headers={
+
                 "User-Agent": "WebsiteMonitor"
+
             }
 
         )
 
-        elapsed = round((time.time() - start) * 1000)
+        elapsed = round(
+
+            (time.time() - start) * 1000
+
+        )
 
         return {
 
@@ -110,9 +161,31 @@ def monitor_loop():
 
         websites = data["websites"]
 
-        for site in websites:
+        for website in websites:
 
-            results[site] = ping_site(site)
+            url = website["url"]
+
+            name = website["name"]
+
+            results[url] = ping_site(url)
+
+            results[url]["name"] = name
+
+        # cleanup removed websites
+
+        for site in list(results.keys()):
+
+            exists = False
+
+            for website in websites:
+
+                if website["url"] == site:
+
+                    exists = True
+
+            if not exists:
+
+                results.pop(site)
 
         time.sleep(interval)
 
@@ -140,49 +213,95 @@ def add_site():
 
     global results
 
+    name = request.json["name"].strip()
+
     url = request.json["url"].strip()
 
-    if not url:
-        return jsonify({"success": False})
+    if not name or not url:
 
-    if not url.startswith(("http://", "https://")):
-        url = "https://" + url
+        return jsonify({
+
+            "success": False
+
+        })
 
     data = load_websites()
 
-    if url not in data["websites"]:
+    exists = False
 
-        data["websites"].append(url)
+    for website in data["websites"]:
+
+        if website["url"] == url:
+
+            exists = True
+
+    if not exists:
+
+        website = {
+
+            "name": name,
+
+            "url": url
+
+        }
+
+        data["websites"].append(
+
+            website
+
+        )
 
         save_websites(data)
 
-        # immediately add it to dashboard
         results[url] = ping_site(url)
 
-    return jsonify({"success": True})
+        results[url]["name"] = name
+
+    return jsonify({
+
+        "success": True
+
+    })
+
 
 @app.route("/remove", methods=["POST"])
 def remove_site():
+
+    global results
 
     url = request.json["url"]
 
     data = load_websites()
 
-    if url in data["websites"]:
+    data["websites"] = [
 
-        data["websites"].remove(url)
+        site
 
-        save_websites(data)
+        for site in data["websites"]
 
-        results.pop(url, None)
+        if site["url"] != url
 
-    return jsonify({"success": True})
+    ]
+
+    save_websites(data)
+
+    results.pop(url, None)
+
+    return jsonify({
+
+        "success": True
+
+    })
 
 
 @app.route("/interval", methods=["POST"])
 def update_interval():
 
-    minutes = int(request.json["minutes"])
+    minutes = int(
+
+        request.json["minutes"]
+
+    )
 
     data = load_websites()
 
@@ -190,20 +309,43 @@ def update_interval():
 
     save_websites(data)
 
-    return jsonify({"success": True})
+    return jsonify({
+
+        "success": True
+
+    })
 
 
 if __name__ == "__main__":
 
+    data = load_websites()
+
+    for website in data["websites"]:
+
+        url = website["url"]
+
+        name = website["name"]
+
+        results[url] = ping_site(url)
+
+        results[url]["name"] = name
+
     thread = threading.Thread(
+
         target=monitor_loop,
+
         daemon=True
+
     )
 
     thread.start()
 
     app.run(
+
         debug=False,
+
         host="0.0.0.0",
+
         port=5000
+
     )
