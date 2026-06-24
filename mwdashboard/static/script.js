@@ -119,3 +119,77 @@ loadData,
 5000
 
 )
+
+function openModal(){
+
+document.getElementById("websiteModal").style.display="flex"
+
+document.getElementById("urlError").innerText=""
+
+}
+
+function closeModal(){
+
+document.getElementById("websiteModal").style.display="none"
+
+document.getElementById("websiteName").value=""
+
+document.getElementById("websiteUrl").value=""
+
+}
+
+function validateUrl(url){
+
+const regex=/^(https?:\/\/)([\w\-]+\.)+[\w\-]+(\/.*)?$/i
+
+return regex.test(url)
+
+}
+
+async function submitWebsite(){
+
+let name=document.getElementById("websiteName").value.trim()
+
+let url=document.getElementById("websiteUrl").value.trim()
+
+if(name===""){
+
+alert("Enter website name")
+
+return
+
+}
+
+if(!validateUrl(url)){
+
+document.getElementById("urlError").innerText="Invalid URL"
+
+return
+
+}
+
+await fetch("/add",{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":"application/json"
+
+},
+
+body:JSON.stringify({
+
+name:name,
+
+url:url
+
+})
+
+})
+
+closeModal()
+
+await loadData()
+
+}
